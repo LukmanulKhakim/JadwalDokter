@@ -17,6 +17,17 @@ func New(db *gorm.DB) domain.Repository {
 	}
 }
 
+// Get implements domain.Repository
+func (rq *repoQuery) Get(id uint) (domain.PoliCore, error) {
+	var resQry Poli
+	if err := rq.db.First(&resQry, "ID = ?", id).Find(&resQry).Error; err != nil {
+		log.Error(err.Error())
+		return domain.PoliCore{}, err
+	}
+	res := ToDomain(resQry)
+	return res, nil
+}
+
 // Add implements domain.Repository
 func (rq *repoQuery) Add(newPoli domain.PoliCore) (domain.PoliCore, error) {
 	var cnv Poli
@@ -38,7 +49,7 @@ func (rq *repoQuery) Delete(id uint) (domain.PoliCore, error) {
 		log.Error(err.Error())
 		return ToDomain(resQry), err
 	}
-	if err := rq.db.Unscoped().Delete(&resQry).Error; err != nil {
+	if err := rq.db.Delete(&resQry).Error; err != nil {
 		log.Error(err.Error())
 		return ToDomain(resQry), err
 	}
@@ -62,7 +73,7 @@ func (rq *repoQuery) GetAll() ([]domain.PoliCore, error) {
 // Update implements domain.Repository
 func (rq *repoQuery) Update(upPoli domain.PoliCore, poliID uint) (domain.PoliCore, error) {
 	var cnv Poli = FromDomain(upPoli)
-	if err := rq.db.Table("users").Where("id = ?", poliID).Updates(&cnv).Error; err != nil {
+	if err := rq.db.Table("polis").Where("id = ?", poliID).Updates(&cnv).Error; err != nil {
 		log.Error("error on updating user", err.Error())
 		return domain.PoliCore{}, err
 	}

@@ -26,10 +26,17 @@ type AddResponse struct {
 	Nama_poli string `json:"nama_poli"`
 }
 
+type UpdateResponse struct {
+	Nama_poli string `json:"nama_poli"`
+}
+
 func ToResponse(basic interface{}, code string) interface{} {
 	var res interface{}
 	switch code {
 	case "reg":
+		cnv := basic.(domain.PoliCore)
+		res = AddResponse{ID: cnv.ID, Nama_poli: cnv.Nama_poli}
+	case "get":
 		cnv := basic.(domain.PoliCore)
 		res = AddResponse{ID: cnv.ID, Nama_poli: cnv.Nama_poli}
 	case "all":
@@ -39,6 +46,9 @@ func ToResponse(basic interface{}, code string) interface{} {
 			arr = append(arr, AddResponse{ID: val.ID, Nama_poli: val.Nama_poli})
 		}
 		res = arr
+	case "edit":
+		cnv := basic.(domain.PoliCore)
+		res = UpdateResponse{Nama_poli: cnv.Nama_poli}
 	}
 	return res
 }

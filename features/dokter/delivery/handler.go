@@ -29,8 +29,8 @@ func (dh *dokterHandler) AddDokter() echo.HandlerFunc {
 		if err := c.Bind(&input); err != nil {
 			return c.JSON(http.StatusBadRequest, FailResponse("cannot bind input"))
 		}
-		IdPoli := strconv.Itoa(int(input.Poli_ID))
-		if strings.TrimSpace(input.Nama_dokter) == "" && strings.TrimSpace(IdPoli) == "" {
+		//IdPoli := strconv.Itoa(int(input.Poli_ID))
+		if strings.TrimSpace(input.Nama_dokter) == "" && input.Poli_ID == 0 {
 			return c.JSON(http.StatusBadRequest, FailResponse("input empty"))
 		}
 		cnv := ToDomain(input)

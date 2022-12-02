@@ -19,6 +19,8 @@ func New(e *echo.Echo, srv domain.Service) {
 	handler := poliHandler{srv: srv}
 	e.POST("/poli", handler.AddPoli())
 	e.GET("/poli", handler.GetAllPoli())
+	e.GET("/poli/:id", handler.GetPoli())
+	e.PUT("/poli/:id", handler.UpdatePoli())
 	e.DELETE("/poli/:id", handler.DeletePoli())
 }
 
@@ -78,5 +80,48 @@ func (ph *poliHandler) DeletePoli() echo.HandlerFunc {
 			return c.JSON(http.StatusAccepted, SuccessDeleteResponse("Success delete poli"))
 		}
 
+	}
+}
+
+func (ph *poliHandler) UpdatePoli() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var input UpdateFormat
+		ID, err := strconv.Atoi(c.Param("id"))
+		if err := c.Bind(&input); err != nil {
+			return c.JSON(http.StatusBadRequest, FailResponse("cannot bind input"))
+		}
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, FailResponse("id poli must integer"))
+		}
+		if strings.TrimSpace(input.Nama_poli) == "" {
+			return c.JSON(http.StatusBadRequest, FailResponse("input empty"))
+		}
+		cnv := ToDomain(input)
+		res, err := ph.srv.UpdatePoli(cnv, uint(ID))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, FailResponse(err.Error()))
+		}
+		return c.JSON(http.StatusCreated, SuccessResponse("sucses edit poli", ToResponse(res, "edit")))
+	}
+}
+
+func (ph *poliHandler) GetPoli() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		ID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, FailResponse("id poli must integer"))
+		}
+		res, err := ph.srv.GetPoli(uint(ID))
+		if err != nil {
+			if strings.Contains(err.Error(), "found") {
+				c.JSON(http.StatusBadRequest, FailResponse(err.Error()))
+			} else {
+				return c.JSON(http.StatusInternalServerError, FailResponse(err.Error()))
+			}
+		} else {
+			return c.JSON(http.StatusOK, SuccessResponse("success get poli", ToResponse(res, "get")))
+		}
+		return nil
 	}
 }

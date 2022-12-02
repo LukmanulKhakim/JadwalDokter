@@ -20,6 +20,20 @@ func New(repo domain.Repository) domain.Service {
 	}
 }
 
+// GetPoli implements domain.Service
+func (ps *poliService) GetPoli(id uint) (domain.PoliCore, error) {
+	res, err := ps.qry.Get(id)
+	if err == gorm.ErrRecordNotFound {
+		log.Error(err.Error())
+		return domain.PoliCore{}, gorm.ErrRecordNotFound
+	} else if err != nil {
+		log.Error(err.Error())
+		return domain.PoliCore{}, errors.New(config.DATABASE_ERROR)
+	}
+	return res, nil
+
+}
+
 // AddPoli implements domain.Service
 func (ps *poliService) AddPoli(newPoli domain.PoliCore) (domain.PoliCore, error) {
 	res, err := ps.qry.Add(newPoli)

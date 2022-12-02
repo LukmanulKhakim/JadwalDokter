@@ -28,9 +28,7 @@ func (jh *jadwalHandler) AddJadwal() echo.HandlerFunc {
 		if err := c.Bind(&input); err != nil {
 			return c.JSON(http.StatusBadRequest, FailResponse("cannot bind input"))
 		}
-		IdPoli := strconv.Itoa(int(input.Poli_ID))
-		IdDokter := strconv.Itoa(int(input.Dokter_ID))
-		if strings.TrimSpace(input.Hari) == "" && strings.TrimSpace(input.Jam) == "" && strings.TrimSpace(IdPoli) == "" && strings.TrimSpace(IdDokter) == "" {
+		if strings.TrimSpace(input.Hari) == "" && strings.TrimSpace(input.Jam) == "" && input.Dokter_ID == 0 && input.Poli_ID == 0 {
 			return c.JSON(http.StatusBadRequest, FailResponse("input empty"))
 		}
 		cnv := ToDomain(input)
