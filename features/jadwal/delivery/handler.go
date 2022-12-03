@@ -2,10 +2,12 @@ package delivery
 
 import (
 	"jadwaldokter/features/jadwal/domain"
+	"jadwaldokter/utils/helper"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -43,7 +45,18 @@ func (jh *jadwalHandler) AddJadwal() echo.HandlerFunc {
 func (jh *jadwalHandler) GetJadwal() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		key := c.QueryParam("key")
-		// dokter := c.QueryParam("dokter")
+		if strings.ContainsAny(key, "11-02-2022") {
+			t, err := time.Parse("01-02-2006", key)
+			if err != nil {
+				log.Println(err.Error())
+			}
+			keyCon := t.Weekday().String()
+			key = helper.Convert(keyCon)
+			log.Println(key)
+		} else {
+			key = c.QueryParam("key")
+			log.Println(key)
+		}
 		res, err := jh.srv.GetJadwal(key)
 		if err != nil {
 			if strings.Contains(err.Error(), "found") {
@@ -52,6 +65,7 @@ func (jh *jadwalHandler) GetJadwal() echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, FailResponse(err.Error()))
 			}
 		} else {
+			log.Println(key)
 			return c.JSON(http.StatusOK, SuccessResponse("success get jadwal", ToResponse(res, "all")))
 		}
 		return nil

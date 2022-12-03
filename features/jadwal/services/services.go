@@ -53,10 +53,10 @@ func (js *jadwalService) GetJadwal(hari string) ([]domain.JadwalCore, error) {
 		return nil, errors.New(config.DATABASE_ERROR)
 	}
 
-	// if len(res) == 0 {
-	// 	log.Info("no data")
-	// 	return nil, errors.New(config.DATA_NOTFOUND)
-	// }
+	if len(res) == 0 {
+		log.Info("no data")
+		return nil, errors.New(config.DATA_NOTFOUND)
+	}
 
 	return res, nil
 }
